@@ -35,7 +35,7 @@ public class ProductDaoImpl implements ProductDao{
 	
 	private Products build(ResultSet rs) throws SQLException{
 		    Products response = new Products();
-			response.setId(rs.getInt("id"));
+			response.setId(rs.getString("id"));
 			response.setDescription(rs.getString("description"));
 			response.setPrice(rs.getDouble("price"));
 			response.setProductType(rs.getInt("producttypeid"));
