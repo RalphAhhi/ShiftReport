@@ -1,21 +1,24 @@
 package com.fv.shiftreport.view;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.Toolkit;
+import java.io.File;
 
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import java.awt.Font;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import com.fv.shiftreport.controller.LoginController;
+import org.apache.commons.codec.binary.Base64;
 
-import javax.swing.JPasswordField;
-import java.awt.Window.Type;
-import javax.swing.JButton;
-import javax.swing.ImageIcon;
-import java.awt.Color;
+import com.fv.shiftreport.controller.LoginController;
+import com.fv.shiftreport.util.DatabaseUtil;
+import com.fv.shiftreport.util.Util;
 
 public class LoginView extends JFrame {
 	

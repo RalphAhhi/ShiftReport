@@ -1,18 +1,25 @@
 package com.fv.shiftreport.model;
 
-public class UserResponse {
+import java.io.Serializable;
 
-	private int id;
+public class UserResponse implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5308958934523662736L;
+	
+	private String id;
 	private String firstName;
 	private String lastName;
 	private String userName;
-	private boolean firstLogin;
+	private int roleId;
 
-	public int getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -40,12 +47,13 @@ public class UserResponse {
 		this.userName = userName;
 	}
 
-	public boolean isFirstLogin() {
-		return firstLogin;
+
+	public int getRoleId() {
+		return roleId;
 	}
 
-	public void setFirstLogin(boolean firstLogin) {
-		this.firstLogin = firstLogin;
+	public void setRoleId(int roleId) {
+		this.roleId = roleId;
 	}
 
 }

@@ -1,12 +1,21 @@
 package com.fv.shiftreport.model;
 
-public class UserRequest {
+public class UserRequest extends Audit{
 
-	private int id;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4474441059988867968L;
+	private String id;
 	private String firstName;
 	private String lastName;
 	private String userName;
 	private String password;
+	private Role role;
+	
+	public UserRequest(){
+		
+	}
 	
 	public UserRequest(String userName,String pwd){
 		this.userName = userName;
@@ -14,11 +23,11 @@ public class UserRequest {
 				
 	}
 
-	public int getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -52,5 +61,13 @@ public class UserRequest {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public Role getRole() {
+		return role;
+	}
+
+	public void setRole(Role role) {
+		this.role = role;
 	}
 }

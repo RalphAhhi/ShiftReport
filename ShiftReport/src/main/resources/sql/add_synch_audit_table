@@ -1,0 +1,11 @@
+create table synchaudit
+(
+id BigInt not null auto_increment ,
+insertedTransaction varchar(1000),
+updatedTransaction varchar(1000),
+synchBy varchar(100),
+synchDate TimeStamp,
+PRIMARY KEY (id)
+);
+
+

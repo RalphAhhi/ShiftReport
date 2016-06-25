@@ -3,23 +3,28 @@ package com.fv.shiftreport.controller;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.io.File;
 
 import javax.swing.JOptionPane;
 
+import org.apache.commons.codec.binary.Base64;
+
 import com.fv.shiftreport.dao.UserDaoImpl;
-import com.fv.shiftreport.manager.LoginManager;
-import com.fv.shiftreport.manager.LoginManagerImpl;
+import com.fv.shiftreport.manager.AccountManager;
+import com.fv.shiftreport.manager.AccountManagerImpl;
 import com.fv.shiftreport.model.UserRequest;
 import com.fv.shiftreport.model.UserResponse;
 import com.fv.shiftreport.util.SettingUtil;
+import com.fv.shiftreport.util.Util;
 import com.fv.shiftreport.view.LoginView;
 import com.fv.shiftreport.view.MainView;
 
 public class LoginController {
 
 	protected LoginView loginView;
-	protected LoginManager loginManager;
+	protected AccountManager loginManager;
 	
 
 	public LoginController() {
@@ -28,15 +33,40 @@ public class LoginController {
 	public void init()  {
 		try{
 			SettingUtil.populateProps();
-			loginManager = new LoginManagerImpl();
+			initForSql();
+			loginManager = new AccountManagerImpl();
 			loginManager.setUserDao(new UserDaoImpl());
 			loginView.getBtnCancel().addActionListener(new CancelButtonListener());
-			loginView.getBtnLogIn().addActionListener(new LogInButtonListener());	
+			loginView.getBtnLogIn().addActionListener(new LogInButtonListener());
+			loginView.getBtnLogIn().addKeyListener(new LoginKeyListener());
+			loginView.getTxtUser().addKeyListener(new LoginKeyListener());
+			loginView.getTxtPassword().addKeyListener(new LoginKeyListener());
 		}catch(Exception e){
-			e.printStackTrace();
+			Util.writeToFile("error", e.getMessage());
 			JOptionPane.showMessageDialog(loginView, e.getMessage(),"ERROR", JOptionPane.ERROR_MESSAGE);
 		}
 		
+	}
+	
+	public void initForSql(){
+		try{
+			File dir = new File(System.getProperty("user.dir"));
+			File[] sqlFileList = dir.listFiles();
+			for(File sqlFile : sqlFileList){
+				if(sqlFile.isFile() && new String(Base64.decodeBase64(sqlFile.getName().getBytes())).contains("fv")
+						&& new String(Base64.decodeBase64(sqlFile.getName().getBytes())).contains("sql")){
+					String sql = Util.fileToString(sqlFile);
+					if(null != sql && !sql.trim().isEmpty()){
+						Util.writeToFile("Info", "Done executing "+sqlFile);
+					}else{
+						Util.writeToFile("Info", "No File Executed");
+					}
+					
+				}
+			}
+		}catch(Exception e){
+			Util.writeToFile("Error", e.getMessage());
+		}
 	}
 
 	public LoginView getLoginView() {
@@ -53,10 +83,35 @@ public class LoginController {
 			System.exit(0);
 		}
 	}
+	
+	public class LoginKeyListener implements KeyListener{
+
+		public void keyTyped(KeyEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void keyPressed(KeyEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void keyReleased(KeyEvent e) {
+			if(e.getKeyCode()==KeyEvent.VK_ENTER){
+				loginView.getBtnLogIn().doClick();
+			}
+			
+		}
+		
+	}
+	
 
 	public class LogInButtonListener implements ActionListener {
 		LoginView view = loginView;
 		public void actionPerformed(ActionEvent e) {
+			login();
+		}
+		private void login() {
 			try {
 				String user = view.getTxtUser().getText();
 				char[] pwd = view.getTxtPassword().getPassword();
@@ -75,6 +130,7 @@ public class LoginController {
 			} catch (Exception e1) {
 				JOptionPane.showMessageDialog(view, e1.getMessage(),"ERROR", JOptionPane.ERROR_MESSAGE);
 			}
+			
 		}
 	}
 	
@@ -89,5 +145,5 @@ public class LoginController {
 			}
 		});
 	}
-
+	
 }
