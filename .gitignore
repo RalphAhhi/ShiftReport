@@ -1,4 +1,10 @@
 /bin/
 **.class
-**/**.class
-**/**.classpath
+*/*.class
+*/*.classpath
+.metadata/*
+Sample/*
+*.classpath
+.recommenders*
+samplew*
+RemoteSystemsTempFiles*
