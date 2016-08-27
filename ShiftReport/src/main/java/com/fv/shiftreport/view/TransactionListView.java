@@ -43,7 +43,7 @@ public class TransactionListView extends JDialog {
 	public void init(){
 		setIconImage(Toolkit.getDefaultToolkit().getImage(TransactionListView.class.getResource("/images/fvlogo.jpg")));
 		setResizable(false);
-		
+		setAlwaysOnTop(true);
 		setVisible(true);
 		
 		setTitle("Load Transaction");

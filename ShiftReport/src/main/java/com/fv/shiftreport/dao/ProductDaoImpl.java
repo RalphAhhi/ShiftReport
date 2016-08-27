@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fv.shiftreport.model.Inventory;
 import com.fv.shiftreport.model.Products;
 import com.fv.shiftreport.util.DatabaseUtil;
 
@@ -72,6 +73,11 @@ public class ProductDaoImpl implements ProductDao{
 			}
 			
 		}
+	}
+
+	public Inventory fetchInventory(Products product) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

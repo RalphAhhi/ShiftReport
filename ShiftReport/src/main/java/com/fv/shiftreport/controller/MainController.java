@@ -32,7 +32,6 @@ import com.fv.shiftreport.manager.TransactionManagerImpl;
 import com.fv.shiftreport.model.AccountReceivable;
 import com.fv.shiftreport.model.Collection;
 import com.fv.shiftreport.model.Products;
-import com.fv.shiftreport.model.Role;
 import com.fv.shiftreport.model.SubTransaction;
 import com.fv.shiftreport.model.SynchData;
 import com.fv.shiftreport.model.Transaction;
@@ -53,12 +52,13 @@ public class MainController {
 	protected TransactionManager trxManager;
 	protected StaticDataManager staticDataManager;
 	protected AccountManager accountManager;
+	protected RegisterView registerView;
 
 	public MainController() {
 	}
 
-	public void init()  {
-		try{
+	public void init() {
+		try {
 			productManager = new ProductManagerImpl();
 			productManager.setProductDao(new ProductDaoImpl());
 			trxManager = new TransactionManagerImpl();
@@ -67,10 +67,11 @@ public class MainController {
 			staticDataManager.setStaticDataDao(new StaticDataDaoImpl());
 			accountManager = new AccountManagerImpl();
 			accountManager.setUserDao(new UserDaoImpl());
-			
+
 			initTableSetting();
 			mainView.getBtnAdd().addActionListener(new AddActionListener());
-			mainView.getTxtName().setText(mainView.getLoggedInUser().getLastName()+", "+mainView.getLoggedInUser().getFirstName());
+			mainView.getTxtName().setText(
+					mainView.getLoggedInUser().getLastName() + ", " + mainView.getLoggedInUser().getFirstName());
 			mainView.getBtnAddCollection().addActionListener(new AddCollectionActionListener());
 			mainView.getBtnSave().addActionListener(new SaveActionListener());
 			mainView.getJMenuBar().getMenu(0).getItem(0).addActionListener(new LoadTransactionListener());
@@ -79,22 +80,23 @@ public class MainController {
 			mainView.getJMenuBar().getMenu(0).getItem(3).addActionListener(new LogOutActionListener());
 			mainView.getJMenuBar().getMenu(1).getItem(0).addActionListener(new ExportDataListener());
 			mainView.getJMenuBar().getMenu(1).getItem(1).addActionListener(new ImportDataListener());
-//			mainView.getJMenuBar().getMenu(0).getItem(1).addActionListener(new SynchNetworkListener());
+			// mainView.getJMenuBar().getMenu(0).getItem(1).addActionListener(new
+			// SynchNetworkListener());
 			mainView.getJMenuBar().getMenu(2).getItem(0).addActionListener(new InventoryListener());
 			mainView.getBtnDelete().addActionListener(new DeleteArActionListener());
 			mainView.getBtnDeleteCollection().addActionListener(new DeleteCollectionActionListener());
 			mainView.getTxtLessExpenses().addKeyListener(new KeyPressSummaryListener());
 			mainView.getTxtCashDeposited().addKeyListener(new KeyPressSummaryListener());
-		}catch(Exception e){
+		} catch (Exception e) {
 			Util.writeToFile("error", e.getMessage());
-			JOptionPane.showMessageDialog(mainView, e.getMessage(),"ERROR", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(mainView, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
 		}
-		
+
 	}
-	
-	private void initTableSetting(){
+
+	private void initTableSetting() {
 		List<Products> productList;
-		DefaultTableModel model = (DefaultTableModel)mainView.getLubeTable().getModel();
+		DefaultTableModel model = (DefaultTableModel) mainView.getLubeTable().getModel();
 		try {
 			mainView.getLubeTable().setModel(model);
 			mainView.getLubeTable().setRowHeight(18);
@@ -109,118 +111,125 @@ public class MainController {
 			mainView.getReceivableTable().getColumnModel().getColumn(3).setPreferredWidth(15);
 			mainView.getReceivableTable().getColumnModel().getColumn(3).setMinWidth(0);
 			mainView.getReceivableTable().getColumnModel().getColumn(3).setMaxWidth(0);
-			for(Products prod: productList){
-				model.addRow(new Object[]{prod.getId(),prod.getDescription(),null,null,null,null,null,null});
+			for (Products prod : productList) {
+				model.addRow(new Object[] { prod.getId(), prod.getDescription(), null, null, null, null, null, null });
 			}
-			
-			mainView.getDieselTable().getColumnModel().getSelectionModel().addListSelectionListener(new DieselTableListeners());
+
+			mainView.getDieselTable().getColumnModel().getSelectionModel()
+					.addListSelectionListener(new DieselTableListeners());
 			mainView.getDieselTable().getSelectionModel().addListSelectionListener(new DieselTableListeners());
-			mainView.getAvgasTable().getColumnModel().getSelectionModel().addListSelectionListener(new AvgasTableListeners());
+			mainView.getAvgasTable().getColumnModel().getSelectionModel()
+					.addListSelectionListener(new AvgasTableListeners());
 			mainView.getAvgasTable().getSelectionModel().addListSelectionListener(new AvgasTableListeners());
-			mainView.getKeroTable().getColumnModel().getSelectionModel().addListSelectionListener(new KeroTableListeners());
+			mainView.getKeroTable().getColumnModel().getSelectionModel()
+					.addListSelectionListener(new KeroTableListeners());
 			mainView.getKeroTable().getSelectionModel().addListSelectionListener(new KeroTableListeners());
-			mainView.getLubeTable().getColumnModel().getSelectionModel().addListSelectionListener(new LubeTableListeners());
+			mainView.getLubeTable().getColumnModel().getSelectionModel()
+					.addListSelectionListener(new LubeTableListeners());
 			mainView.getLubeTable().getSelectionModel().addListSelectionListener(new LubeTableListeners());
-			if(RoleConstant.ADMIN_ROLE != mainView.getLoggedInUser().getRoleId()){
+			if (RoleConstant.ADMIN_ROLE != mainView.getLoggedInUser().getRoleId()) {
 				mainView.getJMenuBar().getMenu(2).getItem(0).setEnabled(false);
 			}
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(mainView, e.getMessage(),"ERROR", JOptionPane.ERROR_MESSAGE);	
+			JOptionPane.showMessageDialog(mainView, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
 		}
-		
+
 	}
 
 	public void setMainView(MainView mainView) {
 		this.mainView = mainView;
 	}
 
-	
-	//Listeners
-	public class AddActionListener implements ActionListener{
+	// Listeners
+	public class AddActionListener implements ActionListener {
 		MainView view = mainView;
+
 		public void actionPerformed(ActionEvent e) {
-			
-			if(Util.isNotEmpty(view.getTxtInv().getText()) && Util.isNotEmpty(view.getTxtAmount().getText())&& Util.isNotEmpty(view.getTxtArName().getText())){
-				if(!view.getTxtAmount().getText().matches("-?\\d+(\\.\\d+)?")){
+
+			if (Util.isNotEmpty(view.getTxtInv().getText()) && Util.isNotEmpty(view.getTxtAmount().getText())
+					&& Util.isNotEmpty(view.getTxtArName().getText())) {
+				if (!view.getTxtAmount().getText().matches("-?\\d+(\\.\\d+)?")) {
 					view.getTxtAmount().grabFocus();
 					view.getLblReceivableError().setText("Invalid Amount Format");
 					return;
 				}
 				view.getLblReceivableError().setText("");
 				JTable table = view.getReceivableTable();
-				DefaultTableModel model = (DefaultTableModel)table.getModel();
-				model.addRow(new Object[]{view.getTxtArName().getText(),
-						view.getTxtInv().getText(),view.getTxtAmount().getText()});
+				DefaultTableModel model = (DefaultTableModel) table.getModel();
+				model.addRow(new Object[] { view.getTxtArName().getText(), view.getTxtInv().getText(),
+						view.getTxtAmount().getText() });
 				view.getTxtAmount().setText("");
 				view.getTxtInv().setText("");
-				view.getTxtArName().setText("");;
+				view.getTxtArName().setText("");
+				;
 				calculateSalesSummary();
-			}else{
+			} else {
 				view.getLblReceivableError().setText("Incomplete input");
 			}
-			
+
 		}
-		
+
 	}
-	
-	public class KeyPressSummaryListener implements KeyListener{
+
+	public class KeyPressSummaryListener implements KeyListener {
 
 		public void keyTyped(KeyEvent e) {
 			calculateSalesSummary();
-			
+
 		}
 
 		public void keyPressed(KeyEvent e) {
 			calculateSalesSummary();
-			
+
 		}
 
 		public void keyReleased(KeyEvent e) {
 			calculateSalesSummary();
-			
+
 		}
-		
+
 	}
-	public class ExportDataListener implements ActionListener{
+
+	public class ExportDataListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent e) {
 			try {
-				SynchData data = new SynchData(accountManager.getAllUsers(),trxManager.getAllTransactions(),productManager.getAllProduct());
+				SynchData data = new SynchData(accountManager.getAllUsers(), trxManager.getAllTransactions(),
+						productManager.getAllProduct());
 				Util.exportTransaction(data);
 				JOptionPane.showMessageDialog(mainView, "Successfully Exported Data");
 			} catch (Exception e1) {
 				Util.writeToFile("error", e1.getMessage());
-				JOptionPane.showMessageDialog(mainView, e1.getMessage(),"ERROR", JOptionPane.ERROR_MESSAGE);
-				
+				JOptionPane.showMessageDialog(mainView, e1.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+
 			}
-			
+
 		}
-		
+
 	}
-	
-	public class ImportDataListener implements ActionListener{
+
+	public class ImportDataListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent e) {
 			try {
 				SynchData data = Util.importTransaction();
 				List<Transaction> trxList = data.getTrxList();
 				productManager.synchProducts(data.getProductList());
-				trxManager.synchronizeTransations(trxList,mainView.getLoggedInUser());
-				JOptionPane.showMessageDialog(mainView, "Successfully imported "+trxList.size()+" Data");
+				trxManager.synchronizeTransations(trxList, mainView.getLoggedInUser());
+				JOptionPane.showMessageDialog(mainView, "Successfully imported " + trxList.size() + " Data");
 			} catch (Exception e1) {
 				Util.writeToFile("error", e1.getMessage());
-				JOptionPane.showMessageDialog(mainView, e1.getMessage(),"ERROR", JOptionPane.ERROR_MESSAGE);
-				
+				JOptionPane.showMessageDialog(mainView, e1.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+
 			}
-			
+
 		}
-		
+
 	}
 
-	
-	public class SaveActionListener implements ActionListener{
+	public class SaveActionListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent e) {
 			calculateLube();
@@ -229,11 +238,14 @@ public class MainController {
 			calculateMainTable(mainView.getDieselTable(), mainView);
 			calculateSalesSummary();
 			MainView view = mainView;
-			try{
+			try {
 				Transaction transaction = new Transaction();
-				transaction.getSubTransactionList().addAll(convertGasTableToSubTransaction(view.getDieselTable(),GasolineTypes.DIESEL));
-				transaction.getSubTransactionList().addAll(convertGasTableToSubTransaction(view.getAvgasTable(),GasolineTypes.AVGAS));
-				transaction.getSubTransactionList().addAll(convertGasTableToSubTransaction(view.getKeroTable(),GasolineTypes.KERO));
+				transaction.getSubTransactionList()
+						.addAll(convertGasTableToSubTransaction(view.getDieselTable(), GasolineTypes.DIESEL));
+				transaction.getSubTransactionList()
+						.addAll(convertGasTableToSubTransaction(view.getAvgasTable(), GasolineTypes.AVGAS));
+				transaction.getSubTransactionList()
+						.addAll(convertGasTableToSubTransaction(view.getKeroTable(), GasolineTypes.KERO));
 				transaction.getSubTransactionList().addAll(convertLubeTableToSubTransaction(view.getLubeTable()));
 				transaction.getCollectionList().addAll(createCollections(view));
 				transaction.getAccountReceivableList().addAll(createAccountreceivables(view));
@@ -247,7 +259,7 @@ public class MainController {
 				transaction.setTotalGas(Util.toDouble(view.getTxtTotal().getText()));
 				transaction.setAvgasTotal(Util.toDouble(view.getTxtTotalA().getText()));
 				transaction.setDieselOpening(Util.toDouble(view.getTxtTotalD().getText()));
-				
+
 				transaction.setAvgasClosing(Util.toDouble(view.getTxtClosingA().getText()));
 				transaction.setAvgasDelivery(Util.toDouble(view.getTxtDeliveryA().getText()));
 				transaction.setAvgasMeter(Util.toDouble(view.getTxtMeterA().getText()));
@@ -267,15 +279,15 @@ public class MainController {
 				transaction.setTotalCollections(Util.toDouble(view.getTxtTotalCollection().getText()));
 				transaction.setAddCollection(Util.toDouble(view.getTxtAddCollection().getText()));
 				transaction.setLessExpenses(Util.toDouble(view.getTxtLessExpenses().getText()));
-				if(null!=mainView.getCurrentTrx()){
+				if (null != mainView.getCurrentTrx()) {
 					transaction.setCreatedDate(mainView.getCurrentTrx().getCreatedDate());
 					transaction.setCreatedBy(mainView.getCurrentTrx().getCreatedBy());
 					transaction.setUniversalTrxId(mainView.getCurrentTrx().getUniversalTrxId());
 					transaction.setId(mainView.getCurrentTrx().getId());
 					transaction.setUpdatedBy(mainView.getLoggedInUser().getId());
 					transaction.setUpdatedDate(DatabaseUtil.getCurrentTimeStamp());
-					
-				}else{
+
+				} else {
 					transaction.setCreatedDate(DatabaseUtil.getCurrentTimeStamp());
 					transaction.setCreatedBy(mainView.getLoggedInUser().getId());
 				}
@@ -284,8 +296,8 @@ public class MainController {
 				mainView.setCurrentTrx(null);
 				clearMainView();
 				JOptionPane.showMessageDialog(view, "Saved transaction successfully");
-			}catch(Exception ex){
-				JOptionPane.showMessageDialog(view, ex.getMessage(),"ERROR", JOptionPane.ERROR_MESSAGE);
+			} catch (Exception ex) {
+				JOptionPane.showMessageDialog(view, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
 				Util.writeToFile("error", ex.getMessage());
 			}
 		}
@@ -298,9 +310,8 @@ public class MainController {
 		MainControllerHelper.exportARtoExcel(currentDir, arList);
 		MainControllerHelper.exportCollectiontoExcel(currentDir, collectionList);
 	}
-	
-	
-	public void clearMainView(){
+
+	public void clearMainView() {
 		mainView.getTxtClosingD().setText("");
 		mainView.getTxtDeliveryD().setText("");
 		mainView.getTxtMeterD().setText("");
@@ -335,42 +346,42 @@ public class MainController {
 		clearTable(mainView.getKeroTable());
 		clearTableRow(mainView.getReceivableTable());
 		clearTableRow(mainView.getTblCollection());
-		clearLubeTable();	
+		clearLubeTable();
 	}
-	
-	private void clearTableRow(JTable table){
-		for(int x = table.getRowCount();x>0;x--){
-			DefaultTableModel model = (DefaultTableModel)table.getModel();
-			model.removeRow(x-1);
+
+	private void clearTableRow(JTable table) {
+		for (int x = table.getRowCount(); x > 0; x--) {
+			DefaultTableModel model = (DefaultTableModel) table.getModel();
+			model.removeRow(x - 1);
 		}
 	}
-	
-	private void clearTable(JTable table){
-		for(int x=0;x<table.getRowCount();x++){
-			for(int y=0;y<table.getColumnCount();y++){
-				if(y!=0){
-					table.setValueAt(null, x, y);	
-				}
-			}
-		}
-	}
-	
-	private void clearLubeTable(){
-		JTable table = mainView.getLubeTable();
-		for(int x=0;x<table.getRowCount();x++){
-			for(int y=0;y<table.getColumnCount();y++){
-				if(y!=0){
+
+	private void clearTable(JTable table) {
+		for (int x = 0; x < table.getRowCount(); x++) {
+			for (int y = 0; y < table.getColumnCount(); y++) {
+				if (y != 0) {
 					table.setValueAt(null, x, y);
 				}
 			}
 		}
 	}
-	
+
+	private void clearLubeTable() {
+		JTable table = mainView.getLubeTable();
+		for (int x = 0; x < table.getRowCount(); x++) {
+			for (int y = 0; y < table.getColumnCount(); y++) {
+				if (y != 0) {
+					table.setValueAt(null, x, y);
+				}
+			}
+		}
+	}
+
 	private List<Collection> createCollections(MainView view) {
 		JTable table = view.getTblCollection();
 		List<Collection> collectionList = new ArrayList<Collection>();
-	    for(int x=0;x<table.getRowCount();x++){
-	    	Object name = table.getValueAt(x, 0);
+		for (int x = 0; x < table.getRowCount(); x++) {
+			Object name = table.getValueAt(x, 0);
 			Object bankCheck = table.getValueAt(x, 1);
 			Object amount = table.getValueAt(x, 2);
 			Object id = table.getModel().getValueAt(x, 3);
@@ -378,51 +389,52 @@ public class MainController {
 			collection.setAmount(Util.toDouble(amount));
 			collection.setBankCheck(bankCheck.toString());
 			collection.setCustomer(name.toString());
-			collection.setId(id==null?0: Integer.valueOf(id.toString()));
+			collection.setId(id == null ? 0 : Integer.valueOf(id.toString()));
 			collectionList.add(collection);
-	    }
+		}
 		return collectionList;
 	}
-	
+
 	private List<AccountReceivable> createAccountreceivables(MainView view) {
 		JTable table = view.getReceivableTable();
 		List<AccountReceivable> accountReceivables = new ArrayList<AccountReceivable>();
-	    for(int x=0;x<table.getRowCount();x++){
-	    	Object name =table.getValueAt(x, 0);
-	    	String invoice = table.getValueAt(x, 1)==null?"":table.getValueAt(x, 1).toString();
-	    	String amount = table.getValueAt(x, 2)==null?"0":table.getValueAt(x, 2).toString();
-	    	String id = table.getValueAt(x, 3)==null?"0":table.getModel().getValueAt(x, 3).toString();
+		for (int x = 0; x < table.getRowCount(); x++) {
+			Object name = table.getValueAt(x, 0);
+			String invoice = table.getValueAt(x, 1) == null ? "" : table.getValueAt(x, 1).toString();
+			String amount = table.getValueAt(x, 2) == null ? "0" : table.getValueAt(x, 2).toString();
+			String id = table.getValueAt(x, 3) == null ? "0" : table.getModel().getValueAt(x, 3).toString();
 			AccountReceivable ar = new AccountReceivable();
 			ar.setAmount(Util.toDouble(amount));
 			ar.setInvoiceNo(invoice);
 			ar.setId(Integer.valueOf(id));
 			ar.setCustomer(name.toString());
 			accountReceivables.add(ar);
-	    }
+		}
 		return accountReceivables;
 	}
-	
+
 	/**
 	 * @param table
 	 * @param gasTypes
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	private List<SubTransaction> convertGasTableToSubTransaction(JTable table, GasolineTypes gasTypes) throws Exception {
+	private List<SubTransaction> convertGasTableToSubTransaction(JTable table, GasolineTypes gasTypes)
+			throws Exception {
 
 		List<SubTransaction> subTransactions = new ArrayList<SubTransaction>();
-		for(int x=0;x<table.getRowCount();x++){
+		for (int x = 0; x < table.getRowCount(); x++) {
 			SubTransaction subtrans = new SubTransaction();
-			String opening = table.getValueAt(x, 2)== null?"":table.getValueAt(x, 2).toString();
-			String closing = table.getValueAt(x, 1)== null?"":table.getValueAt(x, 1).toString();
-			String liters = table.getValueAt(x, 3)== null?"":table.getValueAt(x, 3).toString();
-			String calib = table.getValueAt(x, 4)== null?"":table.getValueAt(x, 4).toString();
-			String literSold = table.getValueAt(x, 5)== null?"":table.getValueAt(x, 5).toString();
-			String price = table.getValueAt(x, 6)== null?"":table.getValueAt(x, 6).toString();
-			String amount = table.getValueAt(x, 7)== null?"":table.getValueAt(x, 7).toString();
-			String id = table.getValueAt(x, 8)== null?"0":table.getValueAt(x, 8).toString();
+			String opening = table.getValueAt(x, 2) == null ? "" : table.getValueAt(x, 2).toString();
+			String closing = table.getValueAt(x, 1) == null ? "" : table.getValueAt(x, 1).toString();
+			String liters = table.getValueAt(x, 3) == null ? "" : table.getValueAt(x, 3).toString();
+			String calib = table.getValueAt(x, 4) == null ? "" : table.getValueAt(x, 4).toString();
+			String literSold = table.getValueAt(x, 5) == null ? "" : table.getValueAt(x, 5).toString();
+			String price = table.getValueAt(x, 6) == null ? "" : table.getValueAt(x, 6).toString();
+			String amount = table.getValueAt(x, 7) == null ? "" : table.getValueAt(x, 7).toString();
+			String id = table.getValueAt(x, 8) == null ? "0" : table.getValueAt(x, 8).toString();
 			subtrans.setProductId(gasTypes.getId());
-			subtrans.setPumpNumber(x+1);
+			subtrans.setPumpNumber(x + 1);
 			subtrans.setAmount(Util.toDouble(amount));
 			subtrans.setClosing(Util.toDouble(closing));
 			subtrans.setOpening(Util.toDouble(opening));
@@ -432,26 +444,30 @@ public class MainController {
 			subtrans.setSold(Util.toDouble(literSold));
 			subtrans.setId(Integer.valueOf(id));
 			subTransactions.add(subtrans);
-			
+
 		}
-		
+
 		return subTransactions;
-		
+
 	}
-	
-	private List<SubTransaction> convertLubeTableToSubTransaction(JTable table) throws Exception{
+
+	private List<SubTransaction> convertLubeTableToSubTransaction(JTable table) throws Exception {
 
 		List<SubTransaction> subTransactions = new ArrayList<SubTransaction>();
-		for(int x=0;x<table.getRowCount();x++){
+		for (int x = 0; x < table.getRowCount(); x++) {
 			SubTransaction subtrans = new SubTransaction();
-			String opening = table.getModel().getValueAt(x, 2)== null?"":table.getModel().getValueAt(x, 2).toString();
-			String closing = table.getModel().getValueAt(x, 3)== null?"":table.getModel().getValueAt(x, 3).toString();
-			String sold = table.getModel().getValueAt(x, 4)== null?"":table.getModel().getValueAt(x, 4).toString();
-			String price = table.getModel().getValueAt(x, 5)== null?"":table.getModel().getValueAt(x, 5).toString();
-			String amount = table.getModel().getValueAt(x, 6)== null?"":table.getModel().getValueAt(x, 6).toString();
-			String id = table.getModel().getValueAt(x, 7)== null?"0":table.getModel().getValueAt(x, 7).toString();
+			String opening = table.getModel().getValueAt(x, 2) == null ? ""
+					: table.getModel().getValueAt(x, 2).toString();
+			String closing = table.getModel().getValueAt(x, 3) == null ? ""
+					: table.getModel().getValueAt(x, 3).toString();
+			String sold = table.getModel().getValueAt(x, 4) == null ? "" : table.getModel().getValueAt(x, 4).toString();
+			String price = table.getModel().getValueAt(x, 5) == null ? ""
+					: table.getModel().getValueAt(x, 5).toString();
+			String amount = table.getModel().getValueAt(x, 6) == null ? ""
+					: table.getModel().getValueAt(x, 6).toString();
+			String id = table.getModel().getValueAt(x, 7) == null ? "0" : table.getModel().getValueAt(x, 7).toString();
 			int productId = Integer.parseInt(table.getModel().getValueAt(x, 0).toString());
-			
+
 			subtrans.setId(Integer.valueOf(id));
 			subtrans.setAmount(Util.toDouble(amount));
 			subtrans.setClosing(Util.toDouble(closing));
@@ -465,278 +481,283 @@ public class MainController {
 			subTransactions.add(subtrans);
 		}
 		return subTransactions;
-		
+
 	}
-	
-	public class AddCollectionActionListener implements ActionListener{
+
+	public class AddCollectionActionListener implements ActionListener {
 		MainView view = mainView;
+
 		public void actionPerformed(ActionEvent e) {
-			
-			if(Util.isNotEmpty(view.getTxtBankCheck().getText()) && Util.isNotEmpty(view.getTxtAmountCollection().getText()) && Util.isNotEmpty(view.getTxtNameCollection().getText())){
-				if(!view.getTxtAmountCollection().getText().matches("-?\\d+(\\.\\d+)?")){
+
+			if (Util.isNotEmpty(view.getTxtBankCheck().getText())
+					&& Util.isNotEmpty(view.getTxtAmountCollection().getText())
+					&& Util.isNotEmpty(view.getTxtNameCollection().getText())) {
+				if (!view.getTxtAmountCollection().getText().matches("-?\\d+(\\.\\d+)?")) {
 					view.getTxtAmountCollection().grabFocus();
 					view.getLblCollectionError().setText("Invalid Amount Format");
 					return;
 				}
 				view.getLblCollectionError().setText("");
 				JTable table = view.getTblCollection();
-				DefaultTableModel model = (DefaultTableModel)table.getModel();
-				model.addRow(new Object[]{view.getTxtNameCollection().getText(),
-						view.getTxtBankCheck().getText(),view.getTxtAmountCollection().getText()});
-				view.getTxtTotalCollection().setText(String.valueOf(Util.addToDouble(view.getTxtTotalCollection().getText(), view.getTxtAmountCollection().getText())));
+				DefaultTableModel model = (DefaultTableModel) table.getModel();
+				model.addRow(new Object[] { view.getTxtNameCollection().getText(), view.getTxtBankCheck().getText(),
+						view.getTxtAmountCollection().getText() });
+				view.getTxtTotalCollection().setText(String.valueOf(Util
+						.addToDouble(view.getTxtTotalCollection().getText(), view.getTxtAmountCollection().getText())));
 				view.getTxtAmountCollection().setText("");
 				view.getTxtBankCheck().setText("");
-				view.getTxtNameCollection().setText("");;
+				view.getTxtNameCollection().setText("");
+				;
 				calculateSalesSummary();
-			}else{
+			} else {
 				view.getLblCollectionError().setText("Incomplete input");
 			}
-			
+
 		}
-		
+
 	}
-	
-	
-    public class DieselTableListeners implements ListSelectionListener {
-        MainView view = mainView;
-      
+
+	public class DieselTableListeners implements ListSelectionListener {
+		MainView view = mainView;
+
 		public void valueChanged(ListSelectionEvent e) {
 			JTable table = view.getDieselTable();
-			calculateMainTable(table,view);
-			
+			calculateMainTable(table, view);
+
 		}
-    }
-    
-    public class AvgasTableListeners implements ListSelectionListener {
-        MainView view = mainView;
-      
+	}
+
+	public class AvgasTableListeners implements ListSelectionListener {
+		MainView view = mainView;
+
 		public void valueChanged(ListSelectionEvent e) {
 			JTable table = view.getAvgasTable();
-			calculateMainTable(table,view);
+			calculateMainTable(table, view);
 		}
-    }
-    
-    public class KeroTableListeners implements ListSelectionListener {
-        MainView view = mainView;
-      
+	}
+
+	public class KeroTableListeners implements ListSelectionListener {
+		MainView view = mainView;
+
 		public void valueChanged(ListSelectionEvent e) {
 			JTable table = view.getKeroTable();
 			calculateMainTable(table, view);
-        }
-    
-    }
-    
-    private void calculateMainTable(JTable table, MainView view){
-    		for(int x=0;x<table.getRowCount();x++){
-    			Object opening = table.getValueAt(x, 2);
-    			Object closing = table.getValueAt(x, 1);
-    			Object calib = table.getValueAt(x, 4);
-    			Object price = table.getValueAt(x, 6);
-    			Double liters = 0.000;
-    			Double literSold = 0.000;
-    			Double amount = 0.000;
-    			
-    			liters = Util.toDouble(closing)-Util.toDouble(opening);
-    			table.setValueAt(liters,x, 3);
-    			
-    			literSold = liters - Util.toDouble(calib);
-    			table.setValueAt(literSold, x, 5);
-    			
-    			
-    			amount = literSold * Util.toDouble(price);
-    			table.setValueAt(amount, x, 7);
-    			
-    		}
-    		Double total = 0.000;
-    		JTable avgasTable = view.getAvgasTable();
-    		JTable dieselTable = view.getDieselTable();
-    		JTable keroTable = view.getKeroTable();
-    		
-    		for(int x = 0; x<avgasTable.getRowCount();x++){
-    			if(null != avgasTable.getValueAt(x, 7)){
-    				total+=Util.toDouble(avgasTable.getValueAt(x, 7));
-    			}
-    		}
-    		for(int x = 0; x<dieselTable.getRowCount();x++){
-    			if(null != dieselTable.getValueAt(x, 7)){
-    				total+=Util.toDouble(dieselTable.getValueAt(x, 7));
-    			}
-    		}
-    		for(int x = 0; x<keroTable.getRowCount();x++){
-    			if(null != keroTable.getValueAt(x, 7)){
-    				total+=Util.toDouble(keroTable.getValueAt(x, 7));
-    			}
-    		}
-    		DecimalFormat df = new DecimalFormat("#,###.####");
-    		view.getTxtTotal().setText(df.format(total));	
-    		
-    		calculateSalesSummary();
+		}
+
 	}
-    
-    public class LubeTableListeners implements ListSelectionListener {
-        
+
+	private void calculateMainTable(JTable table, MainView view) {
+		for (int x = 0; x < table.getRowCount(); x++) {
+			Object opening = table.getValueAt(x, 2);
+			Object closing = table.getValueAt(x, 1);
+			Object calib = table.getValueAt(x, 4);
+			Object price = table.getValueAt(x, 6);
+			Double liters = 0.000;
+			Double literSold = 0.000;
+			Double amount = 0.000;
+
+			liters = Util.toDouble(closing) - Util.toDouble(opening);
+			table.setValueAt(liters, x, 3);
+
+			literSold = liters - Util.toDouble(calib);
+			table.setValueAt(literSold, x, 5);
+
+			amount = literSold * Util.toDouble(price);
+			table.setValueAt(amount, x, 7);
+
+		}
+		Double total = 0.000;
+		JTable avgasTable = view.getAvgasTable();
+		JTable dieselTable = view.getDieselTable();
+		JTable keroTable = view.getKeroTable();
+
+		for (int x = 0; x < avgasTable.getRowCount(); x++) {
+			if (null != avgasTable.getValueAt(x, 7)) {
+				total += Util.toDouble(avgasTable.getValueAt(x, 7));
+			}
+		}
+		for (int x = 0; x < dieselTable.getRowCount(); x++) {
+			if (null != dieselTable.getValueAt(x, 7)) {
+				total += Util.toDouble(dieselTable.getValueAt(x, 7));
+			}
+		}
+		for (int x = 0; x < keroTable.getRowCount(); x++) {
+			if (null != keroTable.getValueAt(x, 7)) {
+				total += Util.toDouble(keroTable.getValueAt(x, 7));
+			}
+		}
+		DecimalFormat df = new DecimalFormat("#,###.####");
+		view.getTxtTotal().setText(df.format(total));
+
+		calculateSalesSummary();
+	}
+
+	public class LubeTableListeners implements ListSelectionListener {
+
 		public void valueChanged(ListSelectionEvent e) {
 			calculateLube();
 		}
-    }
-    
-    private void calculateSalesSummary(){
-    	Double totalFuel = Util.toDouble(mainView.getTxtTotal().getText());
-    	Double totalLube = Util.toDouble(mainView.getTxtLubeTotal().getText());    	
-    	Double overallSales =Util.toDouble(totalLube+ totalFuel);
-    	Double totalAr = calculateTotalAccountReceivable();
-    	Double totalCashSale = Util.toDouble(overallSales - totalAr);
-    	Double totalCollection = Util.toDouble(mainView.getTxtTotalCollection().getText());
-    	Double expense = Util.toDouble(mainView.getTxtLessExpenses().getText());
-    	Double cashOnHand = Util.toDouble(totalCashSale-expense+totalCollection);
-    	Double deposit = Util.toDouble(mainView.getTxtCashDeposited().getText());
-    	Double overShort = Util.toDouble(cashOnHand-deposit);
-    	
-    	mainView.getTxtAddCollection().setText(String.valueOf(totalCollection));
-    	mainView.getTxtAddLubes().setText(String.valueOf(totalLube));
-    	mainView.getTxtFuelSales().setText(String.valueOf(totalFuel));
-    	mainView.getTxtTotalCashSales().setText(String.valueOf(totalCashSale));
-    	mainView.getTxtTotalSales().setText(String.valueOf(overallSales));
-    	mainView.getTxtLessAr().setText((String.valueOf(totalAr)));
-    	mainView.getTxtTotalCashOnHand().setText(String.valueOf(cashOnHand));
-    	mainView.getTxtOverShort().setText(String.valueOf(overShort));
-    	
-    }
-    
-    private Double calculateTotalAccountReceivable(){
-    	Double totalAccountReceivable = 0.00;
-    	for(int x=0;x<mainView.getReceivableTable().getRowCount();x++){
-    		totalAccountReceivable+=Util.toDouble(mainView.getReceivableTable().getValueAt(x, 2));
-    	}
-    	return totalAccountReceivable;
-    }
-    
-    private void calculateLube(){
-    	MainView view = mainView;
-    	JTable table = view.getLubeTable();
-		for(int x=0; x<table.getRowCount();x++){
+	}
+
+	private void calculateSalesSummary() {
+		Double totalFuel = Util.toDouble(mainView.getTxtTotal().getText());
+		Double totalLube = Util.toDouble(mainView.getTxtLubeTotal().getText());
+		Double overallSales = Util.toDouble(totalLube + totalFuel);
+		Double totalAr = calculateTotalAccountReceivable();
+		Double totalCashSale = Util.toDouble(overallSales - totalAr);
+		Double totalCollection = Util.toDouble(mainView.getTxtTotalCollection().getText());
+		Double expense = Util.toDouble(mainView.getTxtLessExpenses().getText());
+		Double cashOnHand = Util.toDouble(totalCashSale - expense + totalCollection);
+		Double deposit = Util.toDouble(mainView.getTxtCashDeposited().getText());
+		Double overShort = Util.toDouble(cashOnHand - deposit);
+
+		mainView.getTxtAddCollection().setText(String.valueOf(totalCollection));
+		mainView.getTxtAddLubes().setText(String.valueOf(totalLube));
+		mainView.getTxtFuelSales().setText(String.valueOf(totalFuel));
+		mainView.getTxtTotalCashSales().setText(String.valueOf(totalCashSale));
+		mainView.getTxtTotalSales().setText(String.valueOf(overallSales));
+		mainView.getTxtLessAr().setText((String.valueOf(totalAr)));
+		mainView.getTxtTotalCashOnHand().setText(String.valueOf(cashOnHand));
+		mainView.getTxtOverShort().setText(String.valueOf(overShort));
+
+	}
+
+	private Double calculateTotalAccountReceivable() {
+		Double totalAccountReceivable = 0.00;
+		for (int x = 0; x < mainView.getReceivableTable().getRowCount(); x++) {
+			totalAccountReceivable += Util.toDouble(mainView.getReceivableTable().getValueAt(x, 2));
+		}
+		return totalAccountReceivable;
+	}
+
+	private void calculateLube() {
+		MainView view = mainView;
+		JTable table = view.getLubeTable();
+		for (int x = 0; x < table.getRowCount(); x++) {
 			Object opening = table.getValueAt(x, 1);
 			Object closing = table.getValueAt(x, 2);
 			Object price = table.getValueAt(x, 4);
 			Double sold = 0.000;
 			Double amount = 0.000;
-			if(null != opening && null != closing){
-				sold = Util.toDouble(opening)-Util.toDouble(closing);
-				table.setValueAt(sold,x, 3);
+			if (null != opening && null != closing) {
+				sold = Util.toDouble(opening) - Util.toDouble(closing);
+				table.setValueAt(sold, x, 3);
 			}
-			if(sold > 0.000 && null != price){
+			if (sold > 0.000 && null != price) {
 				amount = sold * Util.toDouble(price);
 				table.setValueAt(amount, x, 5);
 			}
 		}
 		Double total = 0.000;
 		JTable lubeTable = view.getLubeTable();
-		
-		for(int x = 0; x<lubeTable.getRowCount();x++){
-			if(null != lubeTable.getValueAt(x, 5)){
-				total+=Util.toDouble(lubeTable.getValueAt(x, 5));
+
+		for (int x = 0; x < lubeTable.getRowCount(); x++) {
+			if (null != lubeTable.getValueAt(x, 5)) {
+				total += Util.toDouble(lubeTable.getValueAt(x, 5));
 			}
 		}
-		
+
 		view.getTxtLubeTotal().setText(total.toString());
 		calculateSalesSummary();
 	}
 
-        
-    public class LogOutActionListener implements ActionListener{
+	public class LogOutActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			mainView.setLoggedInUser(null);
 			mainView.setCurrentTrx(null);
 			mainView.dispose();
 			openLogInView();
-			
+
 		}
-    	
-    }
-    public class InventoryListener implements ActionListener{
+
+	}
+
+	public class InventoryListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			openInventoryView();
-			
+
 		}
-    	
-    }
-    public class LoadTransactionListener implements ActionListener{
+
+	}
+
+	public class LoadTransactionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			try {
 				clearMainView();
 				new TransactionListView(mainView);
 			} catch (SQLException e1) {
-				JOptionPane.showMessageDialog(mainView, e1.getMessage(),"ERROR", JOptionPane.ERROR_MESSAGE);
-				Util.writeToFile("error",e1.getMessage());
+				JOptionPane.showMessageDialog(mainView, e1.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+				Util.writeToFile("error", e1.getMessage());
 			}
 		}
-    }
-    
-    public class NewTransactionListener implements ActionListener{
-		public void actionPerformed(ActionEvent e) {
-				clearMainView();
-				mainView.setCurrentTrx(null);
-		}
-    }
-    
+	}
 
-    public class DeleteArActionListener implements ActionListener{
+	public class NewTransactionListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			clearMainView();
+			mainView.setCurrentTrx(null);
+		}
+	}
+
+	public class DeleteArActionListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent e) {
 			DefaultTableModel model = (DefaultTableModel) mainView.getReceivableTable().getModel();
 			model.removeRow(mainView.getReceivableTable().getSelectedRow());
 			calculateSalesSummary();
 		}
-     
-    }
-    
-    public class DeleteCollectionActionListener implements ActionListener{
+
+	}
+
+	public class DeleteCollectionActionListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent e) {
 			DefaultTableModel model = (DefaultTableModel) mainView.getTblCollection().getModel();
-			Double amount = Util.toDouble(mainView.getTblCollection().getValueAt(mainView.getTblCollection().getSelectedRow(),2));
+			Double amount = Util
+					.toDouble(mainView.getTblCollection().getValueAt(mainView.getTblCollection().getSelectedRow(), 2));
 			Double total = Util.toDouble(mainView.getTxtTotalCollection().getText());
-			Double finalAmount = total-amount;
+			Double finalAmount = total - amount;
 			mainView.getTxtTotalCollection().setText(String.valueOf(finalAmount));
 			model.removeRow(mainView.getTblCollection().getSelectedRow());
 			calculateSalesSummary();
-			
+
 		}
-    } 
-   
-    public class RegisterActionListener implements ActionListener{
+	}
+
+	public class RegisterActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			try {
-				new RegisterView(mainView);
+
+				registerView = new RegisterView(mainView);
 			} catch (SQLException e1) {
-				Util.writeToFile("error",e1.getMessage());
+				Util.writeToFile("error", e1.getMessage());
 			}
-		}    	
-    }
-    
-    private void openLogInView(){
+		}
+	}
+
+	private void openLogInView() {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
 					new LoginView();
 				} catch (Exception e) {
 					Util.writeToFile("error", e.getMessage());
-					JOptionPane.showMessageDialog(mainView, e.getMessage(),"ERROR", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(mainView, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
 	}
-    private void openInventoryView(){
+
+	private void openInventoryView() {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
 					new InventoryView();
 				} catch (Exception e) {
 					Util.writeToFile("error", e.getMessage());
-					JOptionPane.showMessageDialog(mainView, e.getMessage(),"ERROR", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(mainView, e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
 	}
-  }
-
+}

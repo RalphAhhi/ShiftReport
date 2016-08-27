@@ -3,6 +3,8 @@ package com.fv.shiftreport.manager;
 import java.util.List;
 
 import com.fv.shiftreport.dao.ProductDao;
+import com.fv.shiftreport.model.Inventory;
+import com.fv.shiftreport.model.InventoryTransaction;
 import com.fv.shiftreport.model.Products;
 
 public interface ProductManager {
@@ -15,6 +17,6 @@ public interface ProductManager {
 	public List<Products> getAllProduct()throws Exception ;
 	public void synchProducts(List<Products> productList)throws Exception ;
 	public List<Products> getAllLubeProduct() throws Exception ;
-	public void getInventory(Products selected);
-	public void getInventoryTransaction(Products selected);
+	public Inventory getInventory(Products selected);
+	public List<InventoryTransaction> getInventoryTransaction(Products selected);
 }

@@ -1,7 +1,5 @@
 package com.fv.shiftreport.controller;
 
-import java.awt.List;
-
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;

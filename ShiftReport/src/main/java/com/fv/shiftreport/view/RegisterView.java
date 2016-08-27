@@ -57,9 +57,8 @@ public class RegisterView extends JDialog {
 	public void init(){
 		setIconImage(Toolkit.getDefaultToolkit().getImage(RegisterView.class.getResource("/images/fvlogo.jpg")));
 		setResizable(false);
-		
 		setVisible(true);
-		
+		setAlwaysOnTop(true);
 		setTitle("Register");
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		getContentPane().setLayout(null);

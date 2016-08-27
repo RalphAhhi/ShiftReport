@@ -5,7 +5,6 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Toolkit;
-import java.io.File;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -14,11 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import org.apache.commons.codec.binary.Base64;
-
 import com.fv.shiftreport.controller.LoginController;
-import com.fv.shiftreport.util.DatabaseUtil;
-import com.fv.shiftreport.util.Util;
 
 public class LoginView extends JFrame {
 	

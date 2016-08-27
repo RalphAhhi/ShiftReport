@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fv.shiftreport.dao.ProductDao;
+import com.fv.shiftreport.model.Inventory;
+import com.fv.shiftreport.model.InventoryTransaction;
 import com.fv.shiftreport.model.Products;
 import com.fv.shiftreport.util.ProductTypeConstant;
 
@@ -49,13 +51,13 @@ public class ProductManagerImpl implements ProductManager {
 		
 	}
 
-	public void getInventory(Products selected) {
-		// TODO Auto-generated method stub
+	public Inventory getInventory(Products selected) {
+		return productDao.fetchInventory(selected);
 		
 	}
 
-	public void getInventoryTransaction(Products selected) {
-		// TODO Auto-generated method stub
+	public List<InventoryTransaction> getInventoryTransaction(Products selected) {
+		return null;
 		
 	}
 	
